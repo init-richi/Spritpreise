@@ -1,0 +1,27 @@
+{
+
+  "general": {
+    "saveDirSprit": "Dir_Name_For_Sprit_Fetching",
+    "saveDirNews": "Dir_Name_For_Sprit_Fetching"
+  },
+
+  "config_spritpreise": {
+    "api_key_sprt": "API_Key_For_'TankerKönig'_Goes_Here",
+    "latitude": "",
+    "longitude": "",
+    "radius": "",
+    "type": "Wich_Type_Of_Sprit",
+    "sleep_time": 240
+  },
+
+  "config_news": {
+    "api_key_nws": "API_Key_For_'newsapi.org'_goes_here",
+    "sources":[
+      "der-tagesspiegel",
+      "die-zeit",
+      "focus",
+      "spiegel-online",
+      "wirtschafts-woche"
+      ]
+  }
+}
