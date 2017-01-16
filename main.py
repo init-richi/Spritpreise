@@ -51,8 +51,7 @@ newsSources = jsonConfigData['config_news']['sources'] #STR
 
 
 
-while True: # infinite loop
-    
+
     if os.path.exists('Data/' + genSaveSprit):
         pass
     else:
