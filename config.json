@@ -2,7 +2,16 @@
 
   "general": {
     "saveDirSprit": "Dir_Name_For_Sprit_Fetching",
-    "saveDirNews": "Dir_Name_For_Sprit_Fetching"
+    "saveDirNews": "Dir_Name_For_Sprit_Fetching",
+    "smtpServer": "smtp.server.org",
+    "_comment": "For future use:",
+    "smptPort": 465,                                 
+    "smtpMail": "eMail@server.org",
+    "smtpUser": "username",
+    "smtpPass": "password",
+    "smtpTLS": true,
+    "toMail": "eMail@server.org"
+
   },
 
   "config_spritpreise": {

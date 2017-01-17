@@ -17,6 +17,8 @@
 
 import datetime, os
 import json, requests
+import smtplib
+from email.mime.text import MIMEText
 
 
 class fetch(object): 
@@ -35,6 +37,29 @@ class fetch(object):
         req = requests.get(api_url) 
         return req.json() 
 
+def sendMail(user, pwd, to, subject, text, server, port):
+    msg = MIMEText(text.encode('utf-8'),'plain','utf-8')
+    msg['From'] = user
+    msg['To'] = to
+    msg['Subject'] = subject
+
+
+    if ssl == True: 
+        smtpConnect = smtplib.SMTP_SSL(smtpServer, smtpPort)
+
+    else:
+        smtpConnect = smtplib.SMTP(smtpServer, smtpPort)
+
+    if tls == True:
+        smtpConnect.ehlo()
+        smtpConnect.starttls()
+        smtpConnect.ehlo()
+        smtpConnect.login(fromUser, pwd)
+        smtpConnect.sendmail(user, to, msg.as_string())
+        smtpConnect.close()
+
+
+
 
 jsonConfig = open('config.json', 'r')
 jsonConfigData = json.load(jsonConfig)
@@ -45,6 +70,13 @@ jsonConfigData = json.load(jsonConfig)
 
 genSaveSprit = jsonConfigData['general']['saveDirSprit']
 genSaveNews = jsonConfigData['general']['saveDirNews']
+smtpServer = jsonConfigData['general']['smtpServer']
+smtpPort = jsonConfigData['general']['smtpPort']
+smtpMail = jsonConfigData['general']['smtpMail']
+smtpUser = jsonConfigData['general']['smtpUser']
+smtpPass = jsonConfigData['general']['smtpPass']
+smtpTLS = jsonConfigData['general']['smtpTLS'] 
+toMail = jsonConfigData['general']['toMail']
 
 ##################
 
@@ -55,7 +87,7 @@ spritLat = jsonConfigData['config_spritpreise']['latitude']        # STR
 spritLng = jsonConfigData['config_spritpreise']['longitude']       # STR
 spritRad = jsonConfigData['config_spritpreise']['radius']          # STR
 spritType = jsonConfigData['config_spritpreise']['type']           # STR
-spritSlp = jsonConfigData['config_spritpreise']['sleep_time']     # INT 
+spritSlp = jsonConfigData['config_spritpreise']['sleep_time']      # INT 
 
 ###################
 
@@ -69,24 +101,30 @@ newsSources = jsonConfigData['config_news']['sources'] #STR
 
 
 
-    if os.path.exists('Data/' + genSaveSprit):
+if os.path.exists('Data/' + genSaveSprit):
+    pass
+else:
+    os.mkdir('Data/' + genSaveSprit)
+
+dTime = str(datetime.datetime.now())[:-10]
+
+with open('Data/' + genSaveSprit  + '/sprit_' + dTime + '.json', 'w') as spritFile:
+    try:
+    json.dump(fetch().sprit(spritKey,spritLat,spritLng,spritRad,spritType), spritFile, ensure_ascii=False, indent=4, sort_keys=True)
+    except:
+        sendMail(smtpMail, smtpPass, toMail, 'Error "Spritpreise" - Sprit' + dtime, 'API-Error: Couldn\'t fetch data from "Tanekrkoenig"-API', smtpServer, smtpPort)
+
+if datetime.datetime.now().time() >= datetime.time(23, 55): #if end of day download news
+
+    if os.path.exists('Data/' + genSaveNews):
         pass
     else:
-        os.mkdir('Data/' + genSaveSprit)
+        os.mkdir('Data/' + genSaveNews)
 
+    for item in newsSources: #for every source download .json
 
-    dTime = str(datetime.datetime.now())[:-10]
-    with open('Data/' + genSaveSprit  + '/sprit_' + dTime + '.json', 'w') as spritFile:
-        json.dump(fetch().sprit(spritKey,spritLat,spritLng,spritRad,spritType), spritFile, ensure_ascii=False, indent=4, sort_keys=True)
-
-    if datetime.datetime.now().time() >= datetime.time(23, 55): #if end of day download news
-        if os.path.exists('Data/' + genSaveNews):
-            pass
-        else:
-            os.mkdir('Data/' + genSaveNews)
-
-        for item in newsSources: #for every source download .json
-            with open('Data/' + genSaveNews + '/news_' + dTime +'_' + item + '.json', 'w') as newsFile:
+        with open('Data/' + genSaveNews + '/news_' + dTime +'_' + item + '.json', 'w') as newsFile:
+            try:
                 json.dump(fetch().news(newsKey,str(datetime.datetime.now())[:10], item), newsFile, ensure_ascii=False, indent=4, sort_keys=True)
-
-    time.sleep(spritSlp)
+            except:
+                sendMail(smtpMail, smtpPass, toMail, 'Error "Spritpreise" - Sprit' + dtime, 'API-Error: Couldn\'t fetch data from "Tanekrkoenig"-API', smtpServer, smtpPort)
