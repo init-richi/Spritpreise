@@ -21,21 +21,20 @@ import smtplib
 from email.mime.text import MIMEText
 
 
-class fetch(object): 
  
-    def sprit(self, api_key, latitude, longitude, radius, type): 
+def sprit(self, api_key, latitude, longitude, radius, type): 
 
-        dTime = str(datetime.datetime.now())[:-10] 
-        api_url = 'https://creativecommons.tankerkoenig.de/json/list.php?lat=%s&lng=%s&rad=%s&type=%s&apikey=%s' % (latitude, longitude, radius, type, api_key) 
+    dTime = str(datetime.datetime.now())[:-10] 
+    api_url = 'https://creativecommons.tankerkoenig.de/json/list.php?lat=%s&lng=%s&rad=%s&type=%s&apikey=%s' % (latitude, longitude, radius, type, api_key) 
 
-        req = requests.get(api_url) 
-        return req.json() 
+    req = requests.get(api_url) 
+    return req.json() 
 
-    def news(self, api_key, time, source): 
- 
-        api_url = "https://newsapi.org/v1/articles?source=%s&publishedAt=%s=latest&apiKey=%s" % (source, time, api_key) 
-        req = requests.get(api_url) 
-        return req.json() 
+def news(self, api_key, time, source): 
+
+    api_url = "https://newsapi.org/v1/articles?source=%s&publishedAt=%s=latest&apiKey=%s" % (source, time, api_key) 
+    req = requests.get(api_url) 
+    return req.json() 
 
 def sendMail(user, pwd, to, subject, text, server, port):
     msg = MIMEText(text.encode('utf-8'),'plain','utf-8')
@@ -44,19 +43,19 @@ def sendMail(user, pwd, to, subject, text, server, port):
     msg['Subject'] = subject
 
 
-    if ssl == True: 
+    if smtpSSL == True: 
         smtpConnect = smtplib.SMTP_SSL(smtpServer, smtpPort)
 
     else:
         smtpConnect = smtplib.SMTP(smtpServer, smtpPort)
 
-    if tls == True:
+    if smtpTLS == True:
         smtpConnect.ehlo()
         smtpConnect.starttls()
-        smtpConnect.ehlo()
-        smtpConnect.login(fromUser, pwd)
-        smtpConnect.sendmail(user, to, msg.as_string())
-        smtpConnect.close()
+    smtpConnect.ehlo()
+    smtpConnect.login(user, pwd)
+    smtpConnect.sendmail(user, to, msg.as_string())
+    smtpConnect.close()
 
 
 
@@ -75,6 +74,7 @@ smtpPort = jsonConfigData['general']['smtpPort']
 smtpMail = jsonConfigData['general']['smtpMail']
 smtpUser = jsonConfigData['general']['smtpUser']
 smtpPass = jsonConfigData['general']['smtpPass']
+smtpSSL = jsonConfigData['general']['smtpSSL']
 smtpTLS = jsonConfigData['general']['smtpTLS'] 
 toMail = jsonConfigData['general']['toMail']
 
@@ -82,19 +82,19 @@ toMail = jsonConfigData['general']['toMail']
 
 # sprit_api vars :
 
-spritKey = jsonConfigData['config_spritpreise']['api_key_sprt']    # STR
-spritLat = jsonConfigData['config_spritpreise']['latitude']        # STR
-spritLng = jsonConfigData['config_spritpreise']['longitude']       # STR
-spritRad = jsonConfigData['config_spritpreise']['radius']          # STR
-spritType = jsonConfigData['config_spritpreise']['type']           # STR
-spritSlp = jsonConfigData['config_spritpreise']['sleep_time']      # INT 
+spritKey = jsonConfigData['config_spritpreise']['api_key_sprt']
+spritLat = jsonConfigData['config_spritpreise']['latitude'] 
+spritLng = jsonConfigData['config_spritpreise']['longitude'] 
+spritRad = jsonConfigData['config_spritpreise']['radius'] 
+spritType = jsonConfigData['config_spritpreise']['type'] 
+spritSlp = jsonConfigData['config_spritpreise']['sleep_time']
 
 ###################
 
 # news_api vars :
 
-newsKey = jsonConfigData['config_news']['api_key_nws'] #STR
-newsSources = jsonConfigData['config_news']['sources'] #STR
+newsKey = jsonConfigData['config_news']['api_key_nws']
+newsSources = jsonConfigData['config_news']['sources']
 
 ###################
 
@@ -110,7 +110,7 @@ dTime = str(datetime.datetime.now())[:-10]
 
 with open('Data/' + genSaveSprit  + '/sprit_' + dTime + '.json', 'w') as spritFile:
     try:
-    json.dump(fetch().sprit(spritKey,spritLat,spritLng,spritRad,spritType), spritFile, ensure_ascii=False, indent=4, sort_keys=True)
+    json.dump(sprit(spritKey,spritLat,spritLng,spritRad,spritType), spritFile, ensure_ascii=False, indent=4, sort_keys=True)
     except:
         sendMail(smtpMail, smtpPass, toMail, 'Error "Spritpreise" - Sprit' + dtime, 'API-Error: Couldn\'t fetch data from "Tanekrkoenig"-API', smtpServer, smtpPort)
 
@@ -125,6 +125,6 @@ if datetime.datetime.now().time() >= datetime.time(23, 55): #if end of day downl
 
         with open('Data/' + genSaveNews + '/news_' + dTime +'_' + item + '.json', 'w') as newsFile:
             try:
-                json.dump(fetch().news(newsKey,str(datetime.datetime.now())[:10], item), newsFile, ensure_ascii=False, indent=4, sort_keys=True)
+                json.dump(news(newsKey,str(datetime.datetime.now())[:10], item), newsFile, ensure_ascii=False, indent=4, sort_keys=True)
             except:
-                sendMail(smtpMail, smtpPass, toMail, 'Error "Spritpreise" - Sprit' + dtime, 'API-Error: Couldn\'t fetch data from "Tanekrkoenig"-API', smtpServer, smtpPort)
+                sendMail(smtpMail, smtpPass, toMail, 'Error "Spritpreise" - News ' + dtime, 'API-Error: Couldn\'t fetch data from "newsapi.org"-API', smtpServer, smtpPort)

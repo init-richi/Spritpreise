@@ -10,6 +10,7 @@
     "smtpUser": "username",
     "smtpPass": "password",
     "smtpTLS": true,
+    "smtpSSL": true,
     "toMail": "eMail@server.org"
 
   },
