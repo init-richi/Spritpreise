@@ -110,7 +110,7 @@ dTime = str(datetime.datetime.now())[:-10]
 
 with open('Data/' + genSaveSprit  + '/sprit_' + dTime + '.json', 'w') as spritFile:
     try:
-    json.dump(sprit(spritKey,spritLat,spritLng,spritRad,spritType), spritFile, ensure_ascii=False, indent=4, sort_keys=True)
+	json.dump(sprit(spritKey,spritLat,spritLng,spritRad,spritType), spritFile, ensure_ascii=False, indent=4, sort_keys=True)
     except:
         sendMail(smtpMail, smtpPass, toMail, 'Error "Spritpreise" - Sprit' + dtime, 'API-Error: Couldn\'t fetch data from "Tanekrkoenig"-API', smtpServer, smtpPort)
 
